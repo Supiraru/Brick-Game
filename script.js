@@ -9,16 +9,30 @@ const Circle = {
     dx: 4,
     dy: 3
 };
-
+//USER
 const user = {
     w: 90,
     h: 10,
     x: canvas.width/2-35,
-    y: canvas.height-100,
+    y: canvas.height-20,
     speed: 5,
     dx: 0,
     dy: 0
 };
+//Brick
+var tmp = 0;
+var brick = [];
+
+for(var i = 0 ; i < 4; i++){
+    brick[i]  = {
+        w: 100,
+        h: 100,
+        x: 400 + tmp,
+        y: 20,
+        val: false
+    };
+    tmp =  brick[i].w + 20;
+}
 
 function DrawCircle(){
     context.beginPath();
@@ -47,19 +61,15 @@ function clear(){
 }
 
 function move(){
-    clear();
-
+    
     DrawCircle();
     Circle.x += Circle.dx;
     Circle.y += Circle.dy;
 
     Hit();
 
-    requestAnimationFrame(move);
+
 }
-
-move();
-
 
 //USER
 function DrawRect(){
@@ -93,7 +103,6 @@ function MovPos() {
   
     MovPos();
   
-    requestAnimationFrame(Movement);
   }
 
   function moveRight() {
@@ -121,9 +130,40 @@ function MovPos() {
       user.dx = 0;
     }
   }
-Movement();
 
   document.addEventListener('keydown', keyDown);
   document.addEventListener('keyup', keyUp);
 
   //Brick
+function CheckBrick(){
+    for( var j = 0; j < 4; j++){
+        if(brick[j].val === false){
+            context.fillStyle = 'red';
+            context.fillRect(brick[j].x, brick[j].y, brick[j].w, brick[j].h);
+            RemBrick(j);
+        }
+    }
+}
+function RemBrick(j){
+    if(Circle.x + Circle.size > brick[j].x && 
+        Circle.x + Circle.size < brick[j].x + brick[j].w && 
+        Circle.y + Circle.size > brick[j].y && 
+        Circle.y + Circle.size < brick[j].y + brick[j].h){
+
+        brick[j].val = true;
+        Circle.dx *= -1;
+        Circle.dy *= -1;
+    }
+}
+
+
+function Start(){
+    clear();
+    move();
+    Movement();
+    CheckBrick();
+    requestAnimationFrame(Start);
+}
+
+
+Start();
