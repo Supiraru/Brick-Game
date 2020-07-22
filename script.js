@@ -1,5 +1,6 @@
 const canvas = document.getElementById('canvas');
 const context = canvas.getContext('2d');
+var check = false;
 
 //BALL
 const Circle = {
@@ -19,19 +20,24 @@ const user = {
     dx: 0,
     dy: 0
 };
-//Brick
-var tmp = 0;
+//RED Brick
+var tmpX = 0;
+var tmpY = 0;
 var brick = [];
 
-for(var i = 0 ; i < 4; i++){
+for(var i = 0 ; i < 24; i++){
     brick[i]  = {
         w: 100,
-        h: 100,
-        x: 400 + tmp,
-        y: 20,
+        h: 60,
+        x: 20 + tmpX,
+        y: 20 + tmpY,
         val: false
     };
-    tmp =  brick[i].w + 20;
+    tmpX = tmpX +  brick[i].w + 20;
+    if(i === 7 || i === 15){
+      tmpY = tmpY + brick[i].h + 20;
+      tmpX = 0;
+    }
 }
 
 function DrawCircle(){
@@ -45,8 +51,12 @@ function Hit(){
     if(Circle.x + Circle.size > canvas.width || Circle.x - Circle.size < 0){
         Circle.dx *= -1;
     }
-    if(Circle.y + Circle.size > canvas.height || Circle.y - Circle.size < 0){
+    if( Circle.y - Circle.size < 0){
         Circle.dy *= -1;
+    }
+    if(Circle.y + Circle.size > canvas.height){
+        Circle.dy *= -1;
+        check = true;
     }
 
     if(Circle.y + Circle.size >= user.y && Circle.y + Circle.size <= user.y + user.h  && Circle.x  >= user.x && Circle.x <= user.x + user.w){
@@ -134,15 +144,23 @@ function MovPos() {
   document.addEventListener('keydown', keyDown);
   document.addEventListener('keyup', keyUp);
 
-  //Brick
+  // Brick
 function CheckBrick(){
-    for( var j = 0; j < 4; j++){
+  if(check === false){
+    for( var j = 0; j < 24; j++){
         if(brick[j].val === false){
             context.fillStyle = 'red';
             context.fillRect(brick[j].x, brick[j].y, brick[j].w, brick[j].h);
             RemBrick(j);
         }
     }
+  }
+  else{
+    check = false;
+    for( var j = 0; j < 24; j++){
+      brick[j].val = false;
+    }
+  }
 }
 function RemBrick(j){
     if(Circle.x + Circle.size > brick[j].x && 
@@ -152,7 +170,7 @@ function RemBrick(j){
 
         brick[j].val = true;
         Circle.dx *= -1;
-        Circle.dy *= -1;
+
     }
 }
 
@@ -164,6 +182,5 @@ function Start(){
     CheckBrick();
     requestAnimationFrame(Start);
 }
-
 
 Start();
